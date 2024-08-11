@@ -15,13 +15,13 @@ const CELL: Cell = {
 class Game {
   grid: Grid = [];
   positions: number[][] = [];
-  render () {
+  render() {
     this.setMinePositions();
     this.buildGrid();
     this.renderBoard();
     this.setMineCounts();
   }
-  renderBoard () {
+  renderBoard() {
     ELEMENT.innerHTML = '';
     for (let row of this.grid) {
       let list = document.createElement('ul');
@@ -32,28 +32,30 @@ class Game {
       ELEMENT.appendChild(list);
     }
   }
-  createCell (cell: Cell): HTMLElement {
+  createCell(cell: Cell): HTMLElement {
     let li = document.createElement('li');
     li.dataset.row = cell.row.toString();
     li.dataset.column = cell.column.toString();
     li.dataset.isMine = cell.isMine.toString();
     li.dataset.isRevealed = cell.isRevealed.toString();
     li.dataset.nearMine = cell.mineCount !== 0 ? 'true' : 'false';
-    li.innerHTML = cell.mineCount.toString();
+    if (cell.mineCount > 0) {
+      li.innerHTML = cell.mineCount.toString();
+    }
     li.addEventListener('click', () => this.handleCellClick(cell));
     return li;
   }
-  handleCellClick (cell: Cell): void {
+  handleCellClick(cell: Cell): void {
     this.grid[cell.row][cell.column].isRevealed = true;
-      if (cell.mineCount === 0) {
-        this.showZeros(cell);
-      }
-      if (cell.isMine) {
-        this.gameOver();
-      }
-      this.renderBoard();
+    if (cell.mineCount === 0) {
+      this.showZeros(cell);
+    }
+    if (cell.isMine) {
+      this.gameOver();
+    }
+    this.renderBoard();
   }
-  showZeros (cell: Cell): void {
+  showZeros(cell: Cell): void {
     this.neighborCells(cell, (newCell) => {
       if (newCell.mineCount === 0 && !newCell.isRevealed && !newCell.isMine) {
         newCell.isRevealed = true;
@@ -61,14 +63,16 @@ class Game {
       }
     });
   }
-  gameOver () {
+  gameOver() {
     for (let row of this.grid) {
       for (let cell of row) {
-        cell.isRevealed = true;
+        if (cell.isMine) {
+          cell.isRevealed = true;
+        }
       }
     }
   }
-  setMineCounts (): void {
+  setMineCounts(): void {
     for (let row in this.grid) {
       for (let column in this.grid[row]) {
         let cell = this.grid[row][column];
@@ -83,8 +87,8 @@ class Game {
       }
     }
   }
-  setMinePositions (): void {
-    for (let i = 0; i< MINE_COUNT; i++) {
+  setMinePositions(): void {
+    for (let i = 0; i < MINE_COUNT; i++) {
       let row = Math.floor(Math.random() * SIZE);
       let column = Math.floor(Math.random() * SIZE);
       if (this.positions.includes([row, column])) {
@@ -94,14 +98,14 @@ class Game {
       this.positions.push([row, column]);
     }
   }
-  buildGrid (): void {
+  buildGrid(): void {
     for (let row = 0; row < SIZE; row++) {
       let rows = [];
       for (let column = 0; column < SIZE; column++) {
         rows.push({
           ...CELL,
           row: row,
-          column:column,
+          column: column,
           isMine: this.positions.some((position) => position[0] === row && position[1] === column)
         })
       }
