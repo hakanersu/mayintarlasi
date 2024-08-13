@@ -8,3 +8,6 @@ export type Cell = {
 }
 export type Grid = Cell[][];
 
+export type GameStatus = {
+    status: 'playing' | 'won' | 'lost';
+}

@@ -1,6 +1,6 @@
 import { MINE_COUNT, SIZE } from './constants';
 import './style.css'
-import { Cell, Grid } from './types';
+import { Cell, Grid, GameStatus } from './types';
 
 const ELEMENT = document.getElementsByClassName("grid")[0] as HTMLElement;
 const CELL: Cell = {
@@ -15,12 +15,27 @@ const CELL: Cell = {
 class Game {
   grid: Grid = [];
   positions: number[][] = [];
+  status: GameStatus = {status: 'playing'};
   render() {
     this.setMinePositions();
     this.buildGrid();
     this.renderBoard();
     this.setMineCounts();
+    this.handleReset();
   }
+  handleReset() {
+    const resetButton = document.getElementById('reset');
+    resetButton?.addEventListener('click', () => {
+      this.reset();
+    });
+  }
+  reset () {
+    this.grid = [];
+    this.positions = [];
+    this.status = {status: 'playing'};
+    this.render();
+  }
+
   renderBoard() {
     ELEMENT.innerHTML = '';
     for (let row of this.grid) {
@@ -46,6 +61,7 @@ class Game {
     return li;
   }
   handleCellClick(cell: Cell): void {
+    if (this.status.status !== 'playing') return;
     this.grid[cell.row][cell.column].isRevealed = true;
     if (cell.mineCount === 0) {
       this.showZeros(cell);
@@ -74,8 +90,10 @@ class Game {
         }
       }
     }
+    this.status = {status: 'lost'};
   }
   setMineCounts(): void {
+    this.status = {status: 'playing'};
     for (let row in this.grid) {
       for (let column in this.grid[row]) {
         let cell = this.grid[row][column];
