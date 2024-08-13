@@ -61,6 +61,9 @@ class Game {
         newCell.isRevealed = true;
         this.showZeros(newCell);
       }
+      if (newCell.mineCount> 0) {
+        newCell.isRevealed = true;
+      }
     });
   }
   gameOver() {
